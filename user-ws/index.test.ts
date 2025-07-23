@@ -1,4 +1,4 @@
-import {test,describe} from "bun:test"
+import {test,describe, expect} from "bun:test"
 
 const BACKEND_URL = "ws://localhost:8080";
 
@@ -13,7 +13,7 @@ describe ("Chat Application", () => {
         
 
         await new Promise<void>((resolve,reject) => {
-            let count = 1;
+            let count = 0;
 
             ws1.onopen = () => {
                 count = count + 1;
@@ -38,11 +38,24 @@ describe ("Chat Application", () => {
             type: "join-room",
             room: "room1"
         }))
+
+        await new Promise<void>((resolve) => {
+             ws2.onmessage = ({data}) => {
+            const parsedData = JSON.parse(data);
+            expect(parsedData.type == "chat")
+            expect(parsedData.message == "HI there")
+            
+        }
+
         ws1.send(JSON.stringify({
             type: "chat",
             room: "room1",
             message: "Hello from ws1"
         }))
+        })
+
+       
+        
 
 
     })
